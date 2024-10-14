@@ -85,14 +85,16 @@ fn main() {
     let tray_menu = SystemTrayMenu::new().add_item(quit);
     tauri::Builder::default()
         .setup(|app| {
+            let wal_path = env::var("HOME").unwrap() + "/Library/Messages/chat.db-wal";
+
             if env::var("SKIP_PERMISSION_CHECK").is_ok() {
                 println!("Skipping permission check");
             }
-            else if !can_access_file("/Users/sami/Library/Messages/chat.db-wal") {
+            else if !can_access_file(&wal_path) {
                 print!("Waiting for chat.db-wal to be accessible...");
                 loop {
                     sleep(std::time::Duration::from_secs(2));
-                    if can_access_file("/Users/sami/Library/Messages/chat.db-wal") {
+                    if can_access_file(&wal_path) {
                         break;
                     }
                 }
@@ -109,7 +111,7 @@ fn main() {
                     }
                 }
             }).unwrap();
-            watcher.watch(Path::new("/Users/sami/Library/Messages/chat.db-wal"), RecursiveMode::NonRecursive).unwrap();
+            watcher.watch(Path::new(&wal_path), RecursiveMode::NonRecursive).unwrap();
             Ok(app.set_activation_policy(tauri::ActivationPolicy::Accessory))
         })
         .plugin(tauri_plugin_positioner::init())
