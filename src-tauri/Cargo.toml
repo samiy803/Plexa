@@ -1,0 +1,25 @@
+[package]
+name = "Plexa"
+version = "0.1.0"
+description = "Auto fill auth codes on macOS"
+authors = ["you"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[build-dependencies]
+tauri-build = { version = "1", features = [] }
+
+[dependencies]
+tauri = { version = "1", features = ["shell-open", "system-tray", "macos-private-api"] }
+tauri-plugin-positioner = { version = "1.0.4", features = ["system-tray"] }
+serde = { version = "1", features = ["derive"] }
+notify = { version = "6.1.1", features = ["serde"] }
+serde_json = "1"
+protobuf = "=3.5.1"
+protobuf-codegen = "=3.5.1"
+imessage-database = "2.1.0"
+
+[features]
+# This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
+custom-protocol = ["tauri/custom-protocol"]
