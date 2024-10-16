@@ -1,59 +1,72 @@
 {
-  "$schema": "https://schema.tauri.app/config/1",
-  "build": {
-    "beforeDevCommand": "bun run dev",
-    "beforeBuildCommand": "bun run build",
-    "devPath": "http://localhost:1420",
-    "distDir": "../dist"
-  },
-  "package": {
-    "productName": "Plexa",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": false,
-      "shell": {
-        "all": false,
-        "open": true
-      }
+    "$schema": "https://schema.tauri.app/config/1",
+    "build": {
+        "beforeDevCommand": "bun run dev",
+        "beforeBuildCommand": "bun run build",
+        "devPath": "http://localhost:1420",
+        "distDir": "../dist"
     },
-    "macOSPrivateApi": true,
-    "windows": [
-      {
-        "title": "Plexa",
-        "fullscreen": false,
-        "resizable": false,
-        "visible": false,
-        "hiddenTitle": true,
-        "decorations": false,
-        "focus": false,
-        "transparent": true,
-        "skipTaskbar": true,
-        "alwaysOnTop": true,
-        "width": 320,
-        "height": 480
-      }
-    ],
-    "security": {
-      "csp": null
+    "package": {
+        "productName": "Plexa",
+        "version": "0.1.0"
     },
-    "bundle": {
-      "active": true,
-      "targets": "all",
-      "identifier": "com.plexa.app",
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ]
-    },
-    "systemTray": {
-        "iconPath": "icons/icon.png",
-        "iconAsTemplate": true,
-        "menuOnLeftClick": false
+    "tauri": {
+        "allowlist": {
+            "all": false,
+            "shell": {
+                "all": false,
+                "open": true
+            },
+            "fs": {
+                "createDir": true,
+                "readDir": true,
+                "readFile": true,
+                "writeFile": true,
+                "scope": [
+                    "$APPCONFIG",
+                    "$APPCONFIG/*"
+                ]
+            },
+            "path": {
+                "all": true
+            }
+        },
+        "macOSPrivateApi": true,
+        "windows": [
+            {
+                "title": "Plexa",
+                "fullscreen": false,
+                "resizable": false,
+                "visible": false,
+                "hiddenTitle": true,
+                "decorations": false,
+                "focus": false,
+                "transparent": true,
+                "skipTaskbar": true,
+                "alwaysOnTop": true,
+                "width": 320,
+                "height": 480
+            }
+        ],
+        "security": {
+            "csp": null
+        },
+        "bundle": {
+            "active": true,
+            "targets": "all",
+            "identifier": "com.plexa.app",
+            "icon": [
+                "icons/32x32.png",
+                "icons/128x128.png",
+                "icons/128x128@2x.png",
+                "icons/icon.icns",
+                "icons/icon.ico"
+            ]
+        },
+        "systemTray": {
+            "iconPath": "icons/icon.png",
+            "iconAsTemplate": true,
+            "menuOnLeftClick": false
+        }
     }
-  }
 }

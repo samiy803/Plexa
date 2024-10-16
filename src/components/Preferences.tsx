@@ -1,13 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { ChevronLeft, XCircle } from "lucide-react";
+import { useSettings, type Schema } from "@/contexts/SettingsContext";
 
 export default function Preferences({ onClose }: { onClose: () => void }) {
-    const [codePosition, setCodePosition] = useState("top-right");
-    const [autoCopy, setAutoCopy] = useState(false);
+    const { get, set } = useSettings();
+
+    const [codePosition, setCodePosition] = useState<Schema["position"] | null>(null);
+    const [autoCopy, setAutoCopy] = useState<Schema["autoCopy"] | null>(null);
+
+    useEffect(() => {
+        get("position").then((position) => {
+            setCodePosition(position as Schema["position"]);
+        }).catch((e) => {
+            console.error(e);
+        })
+        get("autoCopy").then((autoCopy) => {
+            setAutoCopy(autoCopy as Schema["autoCopy"]);
+        }).catch((e) => {
+            console.error(e);
+        })
+    }, []);
 
     const positions = [
         { value: "top-left", label: "Top Left", src: "/vite.svg" },
@@ -28,8 +44,14 @@ export default function Preferences({ onClose }: { onClose: () => void }) {
                 <div className="space-t-2">
                     <h3 className="text-lg font-medium mt-4">Code Position</h3>
                     <RadioGroup
-                        value={codePosition}
-                        onValueChange={setCodePosition}
+                        value={codePosition ? codePosition : undefined}
+                        onValueChange={(value) => {
+                            set("position", value as Schema["position"]).then(() => {
+                                setCodePosition(value as Schema["position"]);
+                            }).catch((e) => {
+                                console.error(e);
+                            })
+                        }}
                     >
                         <div className="grid grid-cols-2 gap-2 pt-2">
                             {positions.map((option) => (
@@ -85,8 +107,12 @@ export default function Preferences({ onClose }: { onClose: () => void }) {
                     </div>
                     <Switch
                         id="auto-copy"
-                        checked={autoCopy}
-                        onCheckedChange={setAutoCopy}
+                        checked={autoCopy ? autoCopy : false}
+                        onCheckedChange={() => {
+                            setAutoCopy(!autoCopy);
+                            set("autoCopy", !autoCopy);
+                            console.log(autoCopy);
+                        }}
                     />
                 </div>
             </CardContent>
