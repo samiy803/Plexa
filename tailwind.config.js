@@ -70,6 +70,7 @@ module.exports = {
                 sans: ["var(--font-sans)", ...fontFamily.sans]
             },
             fontSize: {
+                "2xs": "0.75rem", // default is undefined
                 'xs': '0.9rem',  // default is 0.75rem
                 'sm': '1.1rem', // default is 0.875rem
                 'md': '1.25rem',  // default is 1rem

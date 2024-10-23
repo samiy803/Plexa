@@ -11,7 +11,7 @@ edition = "2021"
 tauri-build = { version = "1", features = [] }
 
 [dependencies]
-tauri = { version = "1", features = [ "fs-create-dir", "fs-read-dir", "path-all", "fs-read-file", "fs-write-file", "shell-open", "system-tray", "macos-private-api"] }
+tauri = { version = "1", features = [ "process-exit", "fs-create-dir", "fs-read-dir", "path-all", "fs-read-file", "fs-write-file", "shell-open", "system-tray", "macos-private-api"] }
 tauri-plugin-positioner = { version = "1.0.4", features = ["system-tray"] }
 serde = { version = "1", features = ["derive"] }
 notify = { version = "6.1.1", features = ["serde"] }

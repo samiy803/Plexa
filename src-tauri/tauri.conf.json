@@ -29,6 +29,12 @@
             },
             "path": {
                 "all": true
+            },
+            "process": {
+                "all": false,
+                "exit": true,
+                "relaunch": false,
+                "relaunchDangerousAllowSymlinkMacos": false
             }
         },
         "macOSPrivateApi": true,

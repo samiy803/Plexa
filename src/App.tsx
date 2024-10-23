@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Preferences from "./components/Preferences";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { Settings, Copy, Clock, Trash } from "lucide-react";
+import { invoke } from '@tauri-apps/api/tauri'
+import { useNavigate } from "react-router-dom";
 
 function App() {
+    const redirect = useNavigate();
     const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
     const [recentCodes, setRecentCodes] = useState([
         { company: "Amazon", code: "123456", time: "2 mins ago" },
@@ -29,6 +32,17 @@ function App() {
         visible: { x: "0%", opacity: 1 },
         exit: { x: "-100%", opacity: 0 },
     };
+
+    useEffect(() => {
+        invoke("permission_check").then((res) => {
+            if (!res) {
+                console.log("Permission denied");
+                redirect("/open-settings");
+            } else {
+                console.log("Permission granted");
+            }
+        });
+    }, []);
 
     return (
         <div className="h-full w-full relative bg-dot-white/[0.2]">

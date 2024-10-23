@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::path;
+use std::{path, thread};
 
 use tauri::{AppHandle, CustomMenuItem, Manager, SystemTray, SystemTrayEvent, SystemTrayMenu, WindowEvent};
 use tauri_plugin_positioner::{Position, WindowExt};
@@ -11,6 +11,10 @@ use std::path::Path;
 use std::fs::File;
 use std::io::Read;
 use std::env;
+use std::sync::LazyLock;
+
+
+static WAL_PATH: LazyLock<String> = LazyLock::new( || {env::var("HOME").unwrap() + "/Library/Messages/chat.db-wal" });
 
 fn can_access_file(path: &str) -> bool {
     let path = path::Path::new(path);
@@ -31,6 +35,43 @@ fn can_access_file(path: &str) -> bool {
             false
         }
     }
+}
+
+#[tauri::command]
+fn permission_check() -> bool {
+    if env::var("SKIP_PERMISSION_CHECK").is_ok() {
+        println!("Skipping permission check");
+        return true;
+    }
+    can_access_file(&*WAL_PATH)
+}
+
+#[tauri::command]
+fn init_file_watcher() {
+    thread::spawn(move || {
+        while !permission_check() {
+            println!("Waiting for file access");
+            sleep(std::time::Duration::from_secs(1));
+        };
+        let mut watcher = notify::recommended_watcher(|res| {
+            match res {
+                Ok(event) => {
+                    println!("event: {:?}", event);
+                }
+                Err(e) => {
+                    println!("watch error: {:?}", e);
+                }
+            }
+        }).unwrap();
+        watcher.watch(Path::new(&*WAL_PATH), RecursiveMode::NonRecursive).unwrap();
+    });
+}
+
+#[tauri::command]
+fn open_system_settings() {
+    let _ = std::process::Command::new("open")
+        .arg("x-apple.systempreferences:com.apple.preference.security?Privacy_AllFiles")
+        .output();
 }
 
 fn handle_system_tray_event(app: &AppHandle, event: SystemTrayEvent) {
@@ -85,33 +126,6 @@ fn main() {
     let tray_menu = SystemTrayMenu::new().add_item(quit);
     tauri::Builder::default()
         .setup(|app| {
-            let wal_path = env::var("HOME").unwrap() + "/Library/Messages/chat.db-wal";
-
-            if env::var("SKIP_PERMISSION_CHECK").is_ok() {
-                println!("Skipping permission check");
-            }
-            else if !can_access_file(&wal_path) {
-                print!("Waiting for chat.db-wal to be accessible...");
-                loop {
-                    sleep(std::time::Duration::from_secs(2));
-                    if can_access_file(&wal_path) {
-                        break;
-                    }
-                }
-            } else {
-                println!("chat.db-wal is accessible");
-            }
-            let mut watcher = notify::recommended_watcher(|res| {
-                match res {
-                    Ok(event) => {
-                        println!("event: {:?}", event);
-                    }
-                    Err(e) => {
-                        println!("watch error: {:?}", e);
-                    }
-                }
-            }).unwrap();
-            watcher.watch(Path::new(&wal_path), RecursiveMode::NonRecursive).unwrap();
             Ok(app.set_activation_policy(tauri::ActivationPolicy::Accessory))
         })
         .plugin(tauri_plugin_positioner::init())
@@ -125,6 +139,7 @@ fn main() {
             }
             _ => {}
         })
+        .invoke_handler(tauri::generate_handler![permission_check, init_file_watcher, open_system_settings])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
