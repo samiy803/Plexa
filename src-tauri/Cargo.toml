@@ -19,6 +19,8 @@ serde_json = "1"
 protobuf = "=3.5.1"
 protobuf-codegen = "=3.5.1"
 imessage-database = "2.1.0"
+regex = "1.11.1"
+chrono = "0.4.38"
 
 [features]
 # This feature is used for production builds or when a dev server is not specified, DO NOT REMOVE!!
